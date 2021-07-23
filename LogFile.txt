@@ -1,0 +1,15 @@
+Test Phrase:frequently asked questions
+Transcribed Phrase:frequently asked questions
+Number of characters typed: 27
+Characters per second: 3.085754
+Number of words typed: 5.4
+Words per minute: 37.02905
+Error rate: 0
+R F Backspace Backspace F R E Q U E N T L Y Space A S K E D Space Q U E S T I O N S Return Test Phrase:the early bird gets the worm
+Transcribed Phrase:the early bird gets the worm
+Number of characters typed: 29
+Characters per second: 3.583929
+Number of words typed: 5.8
+Words per minute: 43.00715
+Error rate: 0
+T H E Space E A R L Y Space B I R D Space G E T S Space T H E Space W O R M Return 

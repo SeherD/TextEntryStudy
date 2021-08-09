@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3338680934493705986}
   - component: {fileID: 2016413322489195997}
   - component: {fileID: 2772674220111267850}
+  - component: {fileID: 7724288894256447482}
   m_Layer: 2
   m_Name: HandJointSphere
   m_TagString: Untagged
@@ -110,3 +111,23 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: 0.2}
+--- !u!114 &7724288894256447482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7094064642998883381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61e55d5030302974a867024ab486d306, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settings:
+    nearRadius: 0.05
+    farRadius: 0.2
+    nearDistance: 0.02
+    minNearSizePercentage: 0.35
+    centerColor: {r: 0.21176471, g: 0.5568628, b: 0.98039216, a: 0}
+    middleColor: {r: 0.18431373, g: 0.5176471, b: 1, a: 0.2}
+    outerColor: {r: 0.9647059, g: 0.3647059, b: 2.2470589, a: 1}

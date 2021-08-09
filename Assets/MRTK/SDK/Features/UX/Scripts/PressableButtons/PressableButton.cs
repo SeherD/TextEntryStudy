@@ -16,12 +16,13 @@ namespace Microsoft.MixedReality.Toolkit.UI
     ///</summary>
     [HelpURL("https://docs.microsoft.com/windows/mixed-reality/mrtk-unity/features/ux-building-blocks/button")]
     [AddComponentMenu("Scripts/MRTK/SDK/PressableButton")]
-    public class PressableButton : MonoBehaviour, IMixedRealityTouchHandler
+    public class PressableButton : MonoBehaviour//, IMixedRealityTouchHandler
     {
         const string InitialMarkerTransformName = "Initial Marker";
 
         bool hasStarted = false;
-
+        [SerializeField]
+        GameObject button;
         /// <summary>
         /// The object that is being pushed.
         /// </summary>
@@ -139,9 +140,13 @@ namespace Microsoft.MixedReality.Toolkit.UI
         // The maximum distance before the button is reset to its initial position when retracting.
         private const float MaxRetractDistanceBeforeReset = 0.0001f;
 
-        private Dictionary<IMixedRealityController, Vector3> touchPoints = new Dictionary<IMixedRealityController, Vector3>();
+        //private Dictionary<IMixedRealityController, Vector3> touchPoints = new Dictionary<IMixedRealityController, Vector3>();
 
-        private List<IMixedRealityInputSource> currentInputSources = new List<IMixedRealityInputSource>();
+        //private List<IMixedRealityInputSource> currentInputSources = new List<IMixedRealityInputSource>();
+
+        public Dictionary<GameObject, Vector3> touchPoints = new Dictionary<GameObject, Vector3>();
+
+        public List<GameObject> currentInputSources = new List<GameObject>();
 
         private float currentPushDistance = 0.0f;
 
@@ -368,108 +373,108 @@ namespace Microsoft.MixedReality.Toolkit.UI
 
         #region IMixedRealityTouchHandler implementation
 
-        private void PulseProximityLight()
-        {
-            // Pulse each proximity light on pointer cursors' interacting with this button.
-            if (currentInputSources.Count != 0)
-            {
-                foreach (var pointer in currentInputSources[currentInputSources.Count - 1].Pointers)
-                {
-                    if (!pointer.BaseCursor.TryGetMonoBehaviour(out MonoBehaviour baseCursor))
-                    {
-                        return;
-                    }
+        /*private void PulseProximityLight()
+         {
+             // Pulse each proximity light on pointer cursors' interacting with this button.
+             if (currentInputSources.Count != 0)
+             {
+                 foreach (var pointer in currentInputSources[currentInputSources.Count - 1].Pointers)
+                 {
+                     if (!pointer.BaseCursor.TryGetMonoBehaviour(out MonoBehaviour baseCursor))
+                     {
+                         return;
+                     }
 
-                    GameObject cursorGameObject = baseCursor.gameObject;
-                    if (cursorGameObject == null)
-                    {
-                        return;
-                    }
+                     GameObject cursorGameObject = baseCursor.gameObject;
+                     if (cursorGameObject == null)
+                     {
+                         return;
+                     }
 
-                    ProximityLight[] proximityLights = cursorGameObject.GetComponentsInChildren<ProximityLight>();
+                     ProximityLight[] proximityLights = cursorGameObject.GetComponentsInChildren<ProximityLight>();
 
-                    if (proximityLights != null)
-                    {
-                        foreach (var proximityLight in proximityLights)
-                        {
-                            proximityLight.Pulse();
-                        }
-                    }
-                }
-            }
-        }
+                     if (proximityLights != null)
+                     {
+                         foreach (var proximityLight in proximityLights)
+                         {
+                             proximityLight.Pulse();
+                         }
+                     }
+                 }
+             }
+         }
 
-        private bool HasPassedThroughStartPlane(HandTrackingInputEventData eventData)
-        {
-            foreach (var pointer in eventData.InputSource.Pointers)
-            {
-                // In the case that the input source has multiple poke pointers, this code
-                // will reason over the first such pointer that is actually interacting with
-                // an object. For input sources that have a single poke pointer, this is one
-                // and the same (i.e. this event will only fire for this object when the poke
-                // pointer is touching this object).
-                PokePointer poke = pointer as PokePointer;
-                if (poke && poke.CurrentTouchableObjectDown)
-                {
-                    // Extrapolate to get previous position.
-                    float previousDistance = GetDistanceAlongPushDirection(poke.PreviousPosition);
-                    return previousDistance <= StartPushDistance;
-                }
-            }
+         private bool HasPassedThroughStartPlane(HandTrackingInputEventData eventData)
+         {
+             foreach (var pointer in eventData.InputSource.Pointers)
+             {
+                 // In the case that the input source has multiple poke pointers, this code
+                 // will reason over the first such pointer that is actually interacting with
+                 // an object. For input sources that have a single poke pointer, this is one
+                 // and the same (i.e. this event will only fire for this object when the poke
+                 // pointer is touching this object).
+                 PokePointer poke = pointer as PokePointer;
+                 if (poke && poke.CurrentTouchableObjectDown)
+                 {
+                     // Extrapolate to get previous position.
+                     float previousDistance = GetDistanceAlongPushDirection(poke.PreviousPosition);
+                     return previousDistance <= StartPushDistance;
+                 }
+             }
 
-            return false;
-        }
+             return false;
+         }
 
-        void IMixedRealityTouchHandler.OnTouchStarted(HandTrackingInputEventData eventData)
-        {
-            if (touchPoints.ContainsKey(eventData.Controller))
-            {
-                return;
-            }
+         void IMixedRealityTouchHandler.OnTouchStarted(HandTrackingInputEventData eventData)
+         {
+             if (touchPoints.ContainsKey(eventData.Controller))
+             {
+                 return;
+             }
 
-            // Back-Press Detection:
-            // Accept touch only if controller pushed from the front.
-            if (enforceFrontPush && !HasPassedThroughStartPlane(eventData))
-            {
-                return;
-            }
+             // Back-Press Detection:
+             // Accept touch only if controller pushed from the front.
+             if (enforceFrontPush && !HasPassedThroughStartPlane(eventData))
+             {
+                 return;
+             }
 
-            touchPoints.Add(eventData.Controller, eventData.InputData);
+             touchPoints.Add(eventData.Controller, eventData.InputData);
 
-            // Make sure only one instance of this input source exists and is at the "top of the stack."
-            currentInputSources.Remove(eventData.InputSource);
-            currentInputSources.Add(eventData.InputSource);
+             // Make sure only one instance of this input source exists and is at the "top of the stack."
+             currentInputSources.Remove(eventData.InputSource);
+             currentInputSources.Add(eventData.InputSource);
 
-            IsTouching = true;
+             IsTouching = true;
 
-            eventData.Use();
-        }
+             eventData.Use();
+         }
 
-        void IMixedRealityTouchHandler.OnTouchUpdated(HandTrackingInputEventData eventData)
-        {
-            if (touchPoints.ContainsKey(eventData.Controller))
-            {
-                touchPoints[eventData.Controller] = eventData.InputData;
-                eventData.Use();
-            }
-        }
+         void IMixedRealityTouchHandler.OnTouchUpdated(HandTrackingInputEventData eventData)
+         {
+             if (touchPoints.ContainsKey(eventData.Controller))
+             {
+                 touchPoints[eventData.Controller] = eventData.InputData;
+                 eventData.Use();
+             }
+         }
 
-        void IMixedRealityTouchHandler.OnTouchCompleted(HandTrackingInputEventData eventData)
-        {
-            if (touchPoints.ContainsKey(eventData.Controller))
-            {
-                // When focus is lost, before removing controller, update the respective touch point to give a last chance for checking if pressed occurred 
-                touchPoints[eventData.Controller] = eventData.InputData;
-                UpdateTouch();
+         void IMixedRealityTouchHandler.OnTouchCompleted(HandTrackingInputEventData eventData)
+         {
+             if (touchPoints.ContainsKey(eventData.Controller))
+             {
+                 // When focus is lost, before removing controller, update the respective touch point to give a last chance for checking if pressed occurred 
+                 touchPoints[eventData.Controller] = eventData.InputData;
+                 UpdateTouch();
 
-                touchPoints.Remove(eventData.Controller);
-                currentInputSources.Remove(eventData.InputSource);
+                 touchPoints.Remove(eventData.Controller);
+                 currentInputSources.Remove(eventData.InputSource);
 
-                IsTouching = (touchPoints.Count > 0);
-                eventData.Use();
-            }
-        }
-
+                 IsTouching = (touchPoints.Count > 0);
+                 eventData.Use();
+             }
+         }
+        */
         #endregion OnTouch
 
         #region public transform utils
@@ -502,7 +507,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
             float distance = Vector3.Dot(localPosition, WorldSpacePressDirection.normalized);
             return (distanceSpaceMode == SpaceMode.Local) ? distance * WorldToLocalScale : distance;
         }
-
+       
         #endregion
 
         #region private Methods
@@ -541,6 +546,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 {
                     IsPressing = true;
                     ButtonPressed.Invoke();
+                    Debug.Log("Key name: " + this.gameObject.name);
                     PulseProximityLight();
                 }
             }
@@ -554,6 +560,88 @@ namespace Microsoft.MixedReality.Toolkit.UI
                     ButtonReleased.Invoke();
                 }
             }
+        }
+
+        #endregion
+
+        #region OnCollisionImplementation
+
+       void OnCollisionEnter(Collision collision)
+        {
+            if (touchPoints.ContainsKey(collision.gameObject))
+            {
+                return;
+            }
+            if (enforceFrontPush && !HasPassedThroughStartPlane(collision))
+            {
+                return;
+            }
+
+            touchPoints.Add(collision.gameObject, collision.transform.position);
+            currentInputSources.Remove(collision.gameObject);
+            currentInputSources.Add(collision.gameObject);
+
+            //Debug.Log("Key name: " + this.gameObject.name + " ," + "Finger tip name: " + collision.gameObject.name);
+            isTouching = true;
+        }
+       void OnCollisionStay(Collision collision)
+        {
+            if (touchPoints.ContainsKey(collision.gameObject))
+            {
+                touchPoints[collision.gameObject] = collision.gameObject.transform.position;
+               
+            }
+        }
+
+        void OnCollisionExit(Collision collision)
+        {
+            if (touchPoints.ContainsKey(collision.gameObject))
+            {
+                touchPoints[collision.gameObject] = collision.gameObject.transform.position;
+                UpdateTouch();
+
+                touchPoints.Remove(collision.gameObject);
+                currentInputSources.Remove(collision.gameObject);
+                isTouching = (touchPoints.Count > 0);
+
+            }
+        }
+        private bool HasPassedThroughStartPlane(Collision collision)
+        {
+            var relativePosition = transform.InverseTransformPoint(collision.transform.position);
+            if (relativePosition.z<0)
+            {
+                return true;
+            }
+
+            // float previousDistance = GetDistanceAlongPushDirection(poke.PreviousPosition);
+            // return previousDistance <= StartPushDistance;
+            return false;
+            
+        }
+
+        void PulseProximityLight()
+        {
+           foreach (var cursor in touchPoints.Keys)
+            {
+                ProximityLight[] proximityLights = cursor.GetComponentsInChildren<ProximityLight>();
+
+                if (proximityLights != null)
+                {
+                    foreach (var proximityLight in proximityLights)
+                    {
+                        proximityLight.Pulse();
+                    }
+                }
+
+            }
+                    
+
+                          
+            
+
+            
+            
         }
 
         #endregion

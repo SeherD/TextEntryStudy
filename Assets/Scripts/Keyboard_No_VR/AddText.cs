@@ -16,7 +16,7 @@ public Dictionary<int, string> phrases = new Dictionary<int, string>();
 
 public Text myText;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         ReadString();
         GenerateNewTestString();

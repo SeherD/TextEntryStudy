@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/MRTK/Examples/Experimental/NonNativeKeyboard/Scenes/NonNativeKeyboardExample.unity
+- path: Assets/Scenes/KeyboardTest.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
